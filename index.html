@@ -9,7 +9,7 @@
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="500"
-      height="200"
+      height="300"
       viewBox="0 0 500 200"
     >
       <title>Airfoil Plot</title>
@@ -450,6 +450,55 @@ NACA 2412 Airfoil M=2.0% P=40.0% T=12.0%
     </div>
 
     <script>
+      // Define the array to store airfoil data
+      const airfoilData = [];
+
+      // Function to load data from a text file
+      function loadDataFromFile(filename, callback) {
+        d3.text(filename).then(function (data) {
+          // Split the data into lines
+          const lines = data.split("\n");
+
+          // Iterate through lines and parse x, y values
+          lines.forEach(function (line) {
+            const values = line.trim().split(/\s+/).map(Number);
+            if (values.length === 2) {
+              airfoilData.push(values);
+            }
+          });
+
+          // Execute the callback with the loaded data
+          callback();
+        });
+      }
+
+      // Call the function to load data from the text file
+      loadDataFromFile("airfoil_data.txt", function () {
+        // Create SVG and scaling functions
+        const svg = d3.select("svg");
+        const g = svg.select(".airfoil");
+
+        const scaleX = d3.scaleLinear().domain([0, 1]).range([0, 500]);
+        const scaleY = d3.scaleLinear().domain([-0.1, 0.1]).range([200, 0]);
+
+        const line = d3
+          .line()
+          .x((d) => scaleX(d[0]))
+          .y((d) => scaleY(d[1]));
+
+        // Draw the airfoil path
+        g.append("path")
+          .datum(airfoilData)
+          .attr("fill", "none")
+          .attr("stroke", "red")
+          .attr("stroke-width", 2)
+          .attr("d", line);
+
+        // Optional: Add axis labels or other visual elements
+      });
+    </script>
+
+    <!-- <script>
       // Data
       const airfoilData = [
         [1.000084, 0.001257],
@@ -557,6 +606,6 @@ NACA 2412 Airfoil M=2.0% P=40.0% T=12.0%
         .attr("d", line);
 
       // Optional: Add axis labels or other visual elements
-    </script>
+    </script> -->
   </body>
 </html>
